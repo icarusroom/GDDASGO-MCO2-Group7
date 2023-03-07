@@ -5,8 +5,8 @@ YOU ARE NOT ALLOWED TO MODIFY THE STRUCT
 #define NODE_HEADER
 
 struct Node{
-    char *data;
-    struct Node *pLink;
+    char *data;             //The string value stored in a Node in the linked list.
+    struct Node *pLink;     //POINTER to the NEXT Node in the linked list.
 };
 
 typedef struct Node sNode;

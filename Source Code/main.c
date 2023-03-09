@@ -7,7 +7,7 @@ YOU ARE NOT ALLOWED TO MODIFY THE FUNCTION PROTOTYPES
 
 #include "node.h"
 #include "stack.h"
-//#include "queue.h"
+#include "queue.h"
 #include "main.h"
 
 #include "algorithms.h"
@@ -32,7 +32,7 @@ int main() {
 		printf(BLU "%s" RESET, str_PostFix);
 		
 		//CALCULATE THE VALUE
-		n_Result = evaluatePostfix(str_Infix);	//TEMPORARILY USE INFIX SINCE POSTFIX CONVERSION STILL NOT WORK
+		n_Result = evaluatePostfix(str_PostFix);
 		if (n_Result == -999){
 			printf(RED "\nDivision error by zero!\n\n" RESET);
 		}

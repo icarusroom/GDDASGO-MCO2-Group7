@@ -8,90 +8,104 @@ YOU ARE NOT ALLOWED TO MODIFY THE FUNCTION PROTOTYPES
 #include <stdio.h>
 
 void infixToPostfix(char *infix, char *postfix) {
-	stack *p_Operators = createStack(100);
-	strcpy(postfix, "");
-	int n_NeedPrintSpace = 0;
+	stack *p_Operators = createStack(100);	//STACK FOR OPERATORS
+	strcpy(postfix, "");		//RESET POSTFIX
 
 	int i = 0;
-	int j = 0;
 	
+	//READ THE INFIX CHARS
 	while(infix[i] != '\0'){	
-		char *str_Copy = malloc(257);
+		char *str_Copy = malloc(257);	//MUST CREATE A NEW STRING EVERY LOOP OR IT'LL COPY PREVIOUS STRING'S VALUE. IDEALLY SIZE MALLOC (NUMBER OF LARGEST INTEGER DIGITS) COULD BE ENOUGH SINCE NEW STRING EVERY LOOP
 		str_Copy[i] = infix[i];
-		char *symbol = malloc(257);
-
+		
 		switch (distinguishChar(infix[i])){
+			//SPACES
 			case 0:
-				//printf("\nSpace");
-				//Space
-				if (n_NeedPrintSpace){
-					strcat(postfix, " ");
-					n_NeedPrintSpace = 0;
+				break;
+			//NUMBERS
+			case 1:
+				str_Copy[i+1] = '\0';
+				strcat(postfix, (str_Copy+i));	//DIRECTLY ADD THE CHAR
+				if(infix[i+1] == ' '){
+					strcat(postfix, " ");		//CONCAT A SPACE WHEN IT'S THE LAST DIGIT
 				}
 				break;
-			case 1:
-				//printf("\nNum");
-				n_NeedPrintSpace = 1;
-				str_Copy[i+1] = '\0';
-				strcat(postfix, (str_Copy+i));
-				break;
+			//OPERATORS
 			case 2:
-				//printf("\nSign");
-				str_Copy[i+1] = '\0';
+				//EXTARCT THE OPERATOR
+				//SINGLE DIGIT OPERATORS +, -, !, /...
+				if (infix[i+1] == ' '){
+					str_Copy[i+1] = '\0';
+					//printf("SINGLE: %s", str_Copy+i);
+				}
+				//DOUBLE DIGIT OPERATORS !=, ==, &&, ||...
+				else{
+					str_Copy[i+1] = infix[i+1];
+					str_Copy[i+2] = '\0';
+					//printf("DOUBLE: %s", str_Copy+i);
+				}
 
-				//push(&p_Operators, (str_Copy+i));
-				
+
+				//HANLE WHAT TO DO WITH THE OPERATOR AND STACK
+				//PUSH IF EMPTY
 				if (stackEmpty(p_Operators)){
-					//PUSH IF EMPTY
 					push(&p_Operators, "(");
 					push(&p_Operators, (str_Copy+i));
 				}
-				else if (str_Copy[i] == '('){
-					//PUSH IF (
-					push(&p_Operators, (str_Copy+i));
-				}/*
-				else if (str_Copy[i] == ')'){
-					//IF ), KEEP POPPING UNTIL ( OR EMPTY
-					while (*top(p_Operators) != '(' ){
-						strcpy(symbol+j, pop(&p_Operators));
-						symbol[j+1] = '\0';
-						strcat(postfix, symbol+j);
-						j++;
-					}
-					//POP THE (
-					strcpy(symbol+j, pop(&p_Operators));
-					symbol[j+1] = '\0';
-					strcat(postfix, symbol+j);
-					j++;
-				}*/
-				else if(getHierarchy(str_Copy[i]) > getHierarchy(*p_Operators->pTop->pLink->data)){
-					//PUSH IF GREATER PRECEDENCE
-					push(&p_Operators, (str_Copy+i));
-				}/*
-				else if (getHierarchy(str_Copy[i]) <= getHierarchy(*p_Operators->pTop->pLink->data)){
-					//POP LOWER/EQUAL PRECEDENCE
-					while (getHierarchy(*top(p_Operators))){
-						getHierarchy(str_Copy[i]) > getHierarchy(*p_Operators->pTop->pLink->data)
-						strcat(postfix, pop(&p_Operators));
-					}
-					strcat(postfix, pop(&p_Operators));
-				}*/
 
+				//PUSH IF (
+				else if (str_Copy[i] == '('){
+					push(&p_Operators, (str_Copy+i));
+				}
+				
+				//IF ), KEEP POPPING UNTIL (
+				else if (str_Copy[i] == ')'){
+					while (top(p_Operators)[0] != '(' ){
+						strcat(postfix, pop(&p_Operators));
+						strcat(postfix, " ");
+					}
+					//POP THE ( BUT DON'T STORE IT
+					pop(&p_Operators);
+					//NO NEED TO ADD ) FROM STR_COPY
+				}
+				
+				//PUSH IF GREATER PRECEDENCE	
+				else if(getPrecedence(str_Copy+i) > getPrecedence(top(p_Operators))){
+					push(&p_Operators, (str_Copy+i));
+				}
+				
+				//POP LOOP IF <= PRECEDENCE
+				else if (getPrecedence(str_Copy+i) <= getPrecedence(top(p_Operators))){
+					//POP ALL LOWER/EQUAL PRECEDENCE OR UNTIL ( 
+					while (getPrecedence(str_Copy+i) <= getPrecedence(top(p_Operators)) && top(p_Operators)[0] != '('){
+						strcat(postfix, pop(&p_Operators));
+						strcat(postfix, " ");
+					}
+					//PUSH NOW THAT IT'S THE GREATEST PRECEDENCE
+					push(&p_Operators, str_Copy+i);
+				}
+
+
+				//MOVE THE POINTER TO ADJUST FOR 2 DIGIT OPERATORS
+				if (strlen(str_Copy+i) == 2){
+					i++;	//AVOID READING THE 2ND DIGIT OF AN 2 DIGIT OPERATOR '=' OF !=, <=, >=...
+				}
 				break;
 			default:
 				break;
 		}
-
+		//INCREMENT THE POINTER FOR READING THE NEXT CHAR
 		i++;
 	}
+	//STRING PARSING LOOP END
 
 	//DUMP ALL REMAINING OPERATORS
 	while (!stackEmpty(p_Operators)){
+		strcat(postfix, " ");
 		strcat(postfix, pop(&p_Operators));
 	}
-	
 
-	//printf("\nOPERATORS: "); displayStack(p_Operators);
+	cleanUpString(postfix);
 }
 
 int evaluatePostfix(char *postfix) {

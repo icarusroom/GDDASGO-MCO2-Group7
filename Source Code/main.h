@@ -23,19 +23,38 @@ int distinguishChar(const char c){
 	}
 }
 
-int getHierarchy(const char c){
-	switch (c){
-		case '+':
-		case '-':
-			return 1;
-		case '*':
-		case '/':
-			return 2;
+int getPrecedence(const char* c){
+	switch (c[0]){
 		case '(':
 		case ')':
 			return -1;
+		case '!':
+			//!=
+			if (c[1] == '='){
+				return 3;
+			}
+			//!
+			else{
+				return 7;
+			}
+		case '*':
+		case '/':
+			return 6;
+		case '+':
+		case '-':
+			return 5;
+		case '<':
+		case '>':
+			return 4;
+		case '=':
+		//case '!':
+			return 3;
+		case '&':
+			return 2;
+		case '|':
+			return 1;
 		default:
-			//printf("[HIERARCHY] ERROR. SYMBOL NOT IDENTIFIED");
+			printf("[PRECEDENCE] ERROR. SYMBOL NOT IDENTIFIED");
 			return 0;
 	}
 }
@@ -109,7 +128,6 @@ int evaluatePostfixWithoutQueue(char* postfix){
 					i++;	//AVOID READING 2nd &
 					break;
 				case '|':
-					//||
 					n_Temp = n_L || n_R;
 					i++;	//AVOID READING 2nd |
 					break;
@@ -163,4 +181,20 @@ int evaluatePostfixWithoutQueue(char* postfix){
 	return a_Operands[0];	//SINCE ALWAYS OVERRIDING THE LEFT, FINAL VALUE IS AT THE BOTTOM
 }
 
+void cleanUpString(char* postfix){
+	int i = 0;
+	while (postfix[i] != '\0'){
+		//REMOVE PARANTHESIS
+		if (postfix[i] == '(' || postfix[i] == ')'){
+			strcpy(postfix+i, postfix+i+1);
+		}
+		//REMOVE DOUBLE SPACES
+		if (postfix[i] == ' ' && postfix[i+1] == ' '){
+			strcpy(postfix+i, postfix+i+1);
+		}
+		
+		i++;
+	}
+	
+}
 #endif

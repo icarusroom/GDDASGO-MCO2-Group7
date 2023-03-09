@@ -7,19 +7,39 @@ YOU ARE NOT ALLOWED TO MODIFY THE FUNCTION PROTOTYPES
 
 #include "node.h"
 #include "stack.h"
-#include "queue.h"
+//#include "queue.h"
+#include "main.h"
+
 #include "algorithms.h"
+
+
 
 //gcc -Wall -o main main.c && main
 int main() {
-	char str_Input[257];
-
+	char str_Infix[257];
+	char str_PostFix[257];
+	int n_Result;
 	printf("CALCULATOR: \n");
-	while (strcmp(str_Input, "QUIT")){
-		scanf(" %s", str_Input);
-		// Your code here
 
-		stack *p_Stack = createStack(100);
+	while (1){
+		scanf("%[^\n]%*c", str_Infix);
+		if (!strcmp(str_Infix, "QUIT")){
+			break;
+		}
+		
+		//CONVERT TO POSTFIX
+		infixToPostfix(str_Infix, str_PostFix);
+		printf(BLU "%s" RESET, str_PostFix);
+		
+		//CALCULATE THE VALUE
+		n_Result = evaluatePostfix(str_Infix);	//TEMPORARILY USE INFIX SINCE POSTFIX CONVERSION STILL NOT WORK
+		if (n_Result == -999){
+			printf(RED "\nDivision error by zero!\n\n" RESET);
+		}
+		else{
+			printf(GRN "\n%d\n\n" RESET, n_Result);
+		}
 	}
 	printf("CLOSED PROGRAM");
 }
+

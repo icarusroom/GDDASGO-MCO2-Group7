@@ -83,7 +83,7 @@ char* head(queue *q) {
 	if (queueEmpty(q)){
 		printf("\n[QUEUE HEAD] QUEUE IS EMPTY");
 	}
-	return q->pHead->data;
+	return q->pHead->pLink->data;
 }
 
 //Returns, but does NOT remove, the value currently pointed by the tail pointer, pTail.
